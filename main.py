@@ -1,5 +1,7 @@
+VER = "0.1.3"
 def say_hello():
-    print("""Привет! Есть 2 режима работы:
+    print(f"""\tПривет! Добро пожаловать в BCalc v.{VER}
+    Есть 2 режима работы:
     1) Введи один коэффициент для того чтобы расчитать противоположную сторону.
     2) Введи 2 или более чтобы посчитать вероятности и маржу.""")
 
@@ -16,8 +18,10 @@ class Bet:
         self.rounded_other_kef = 1
         self.rounded_percent = 0
         self.rounded_marja = 0
+        self.e = False
 
     def prompt(self, txt="-> "):
+        self.e = False
         self.raw_kef = input(txt)
         self.mode = 2 if " " in self.raw_kef else 1
         if self.mode == 1:
@@ -25,11 +29,13 @@ class Bet:
                 self.one_kef = float(self.raw_kef)
             except:
                 print("Режим 1, ошибка ввода!")
+                self.e = True
         elif self.mode == 2:
             try:
                 self.multi_kef = [float(i) for i in self.raw_kef.split(" ")]
             except:
                 print("Режим 2, ошибка ввода!")
+                self.e = True
                 return [0]
         self.calculate()
 
@@ -38,6 +44,7 @@ class Bet:
             if self.one_kef == 0:
                 self.one_kef = 1
                 print("Ошибка! Нулевой кеф!")
+                self.e = True
             p = 1 / self.one_kef * 100
             self.other_kef = 1.0 if self.one_kef == 1 else 1 / (100 - p) * 100
             self.rounded_other_kef = round(self.other_kef, self.accuracy_kef)
@@ -50,6 +57,7 @@ class Bet:
                 self.rounded_marja = str(round(self.marja, self.accuracy_percent))+"%"
             except:
                 print("Ошибка! Неправильный кеф!")
+                self.e = True
         else:
             print("Неверный режим")
 
@@ -58,7 +66,7 @@ say_hello()
 b = Bet()
 while 1:
     b.prompt()
-    if b.mode == 1:
+    if b.mode == 1 and not b.e:
         print(b.one_kef, "<-->", b.rounded_other_kef)
-    else:
+    elif not b.e:
         print("-> ", b.rounded_percent, f"@ {b.rounded_marja}")
